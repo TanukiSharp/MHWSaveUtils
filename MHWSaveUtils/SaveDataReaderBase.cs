@@ -7,6 +7,7 @@ namespace MHWSaveUtils
 {
     public class BaseSaveSlotInfo
     {
+        public int SlotNumber { get; }
         public string Name { get; }
         public uint Rank { get; }
         public uint Zeni { get; }
@@ -14,8 +15,9 @@ namespace MHWSaveUtils
         public uint ExperiencePoints { get; }
         public uint Playtime { get; }
 
-        public BaseSaveSlotInfo(string name, uint rank, uint zeni, uint researchPoints, uint experiencePoints, uint playtime)
+        public BaseSaveSlotInfo(int slotNumber, string name, uint rank, uint zeni, uint researchPoints, uint experiencePoints, uint playtime)
         {
+            SlotNumber = slotNumber;
             Name = name;
             Zeni = zeni;
             ResearchPoints = researchPoints;
@@ -26,6 +28,7 @@ namespace MHWSaveUtils
 
         public BaseSaveSlotInfo(BaseSaveSlotInfo copy)
         {
+            SlotNumber = copy.SlotNumber;
             Name = copy.Name;
             Zeni = copy.Zeni;
             ResearchPoints = copy.ResearchPoints;
@@ -106,7 +109,7 @@ namespace MHWSaveUtils
                 throw new FormatException($"Invalid section 3 signature, expected {Constants.Section3Signature:X8} but read {section3Signature:X8}");
         }
 
-        protected BaseSaveSlotInfo ReaderUntilPlaytimeIncluded()
+        protected BaseSaveSlotInfo ReaderUntilPlaytimeIncluded(int slotNumber)
         {
             byte[] hunterNameBytes = reader.ReadBytes(64);
             string hunterName = Encoding.UTF8.GetString(hunterNameBytes).TrimEnd('\0');
@@ -116,7 +119,7 @@ namespace MHWSaveUtils
             uint hunterXP = reader.ReadUInt32();
             uint playTime = reader.ReadUInt32();
 
-            return new BaseSaveSlotInfo(hunterName, hunterRank, zeni, researchPoints, hunterXP, playTime);
+            return new BaseSaveSlotInfo(slotNumber, hunterName, hunterRank, zeni, researchPoints, hunterXP, playTime);
         }
 
         protected void Skip(long count)

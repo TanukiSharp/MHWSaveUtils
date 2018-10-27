@@ -26,7 +26,7 @@ namespace MHWSaveUtils
 
             for (int i = 0; i < 3; i++)
             {
-                WeaponUsageSaveSlotInfo saveSlotInfo = ReadSaveSlot();
+                WeaponUsageSaveSlotInfo saveSlotInfo = ReadSaveSlot(i + 1);
                 if (saveSlotInfo != null)
                     yield return saveSlotInfo;
             }
@@ -36,9 +36,9 @@ namespace MHWSaveUtils
         // Slot 1 Active @ 0x4E9E74
         // Slot 2 Active @ 0x5DFF84
 
-        private WeaponUsageSaveSlotInfo ReadSaveSlot()
+        private WeaponUsageSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
-            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded();
+            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded(slotNumber);
 
             Skip(
                 4 + // unknown

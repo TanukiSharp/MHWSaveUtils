@@ -25,15 +25,15 @@ namespace MHWSaveUtils
 
             for (int i = 0; i < 3; i++)
             {
-                DecorationsSaveSlotInfo saveSlotInfo = ReadSaveSlot();
+                DecorationsSaveSlotInfo saveSlotInfo = ReadSaveSlot(i + 1);
                 if (saveSlotInfo != null)
                     yield return saveSlotInfo;
             }
         }
 
-        private DecorationsSaveSlotInfo ReadSaveSlot()
+        private DecorationsSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
-            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded();
+            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded(slotNumber);
 
             // Skip until beginning of struct itemBox
             Skip(
