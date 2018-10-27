@@ -17,11 +17,23 @@ namespace MHWSaveUtils
         {
             if (userId == null)
                 throw new ArgumentNullException(nameof(userId));
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new ArgumentException($"Argument '{nameof(userId)}' must not be empty.");
             if (saveDataFullFilename == null)
                 throw new ArgumentNullException(nameof(saveDataFullFilename));
+            if (string.IsNullOrWhiteSpace(saveDataFullFilename))
+                throw new ArgumentException($"Argument '{nameof(saveDataFullFilename)}' must not be empty.");
 
             UserId = userId;
             SaveDataFullFilename = saveDataFullFilename;
+        }
+
+        public bool IsEmpty
+        {
+            get
+            {
+                return UserId == null;
+            }
         }
 
         public override bool Equals(object obj)

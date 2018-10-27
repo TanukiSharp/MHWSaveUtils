@@ -7,6 +7,7 @@ namespace MHWSaveUtils
 {
     public class BaseSaveSlotInfo
     {
+        public SaveDataInfo SaveDataInfo { get; private set; }
         public int SlotNumber { get; }
         public string Name { get; }
         public uint Rank { get; }
@@ -28,6 +29,7 @@ namespace MHWSaveUtils
 
         public BaseSaveSlotInfo(BaseSaveSlotInfo copy)
         {
+            SaveDataInfo = copy.SaveDataInfo;
             SlotNumber = copy.SlotNumber;
             Name = copy.Name;
             Zeni = copy.Zeni;
@@ -35,6 +37,11 @@ namespace MHWSaveUtils
             ExperiencePoints = copy.ExperiencePoints;
             Rank = copy.Rank;
             Playtime = copy.Playtime;
+        }
+
+        public void SetSaveDataInfo(SaveDataInfo saveDataInfo)
+        {
+            SaveDataInfo = saveDataInfo;
         }
     }
 
