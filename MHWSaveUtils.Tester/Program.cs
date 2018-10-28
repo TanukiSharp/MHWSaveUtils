@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -74,6 +75,8 @@ namespace MHWSaveUtils.Tester
                 PrintBaseSaveData(decorationInfo);
                 Console.WriteLine();
                 Console.WriteLine($"{decorationInfo.Decorations.Count} decorations");
+                foreach (KeyValuePair<uint, uint> decoKeyValue in decorationInfo.Decorations)
+                    Console.WriteLine($"   {MasterData.FindJewelInfoByItemId(decoKeyValue.Key).Name}: x{decoKeyValue.Value}");
                 PrintSeparator('-');
             }
         }

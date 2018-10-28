@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MHWSaveUtils
@@ -64,9 +65,13 @@ namespace MHWSaveUtils
                     decorations.Add(itemId, itemQuantity);
             }
 
+            // Read 1000 equipment slots
+            for (int i = 0; i < 1000; i++)
+                ReadEquipmentSlot(decorations);
+
             // Skip until the end of the struct saveSlot
             Skip(
-                0x034E3C + // unknown
+                0x2449C + // unknown
                 0x2a * 250 + // investigations
                 0x0FB9 + // unknown
                 Constants.EquipLoadoutsStructureSize + // equipLoadout
@@ -79,6 +84,76 @@ namespace MHWSaveUtils
                 return null;
 
             return new DecorationsSaveSlotInfo(baseSaveSlotInfo, decorations);
+        }
+
+        private IList<uint> availableJewels;
+
+        public void ReadEquipmentSlot(Dictionary<uint, uint> equippedJewels)
+        {
+            Skip(4); // SortIndex
+
+            var equipmentType = (EquipmentType)reader.ReadUInt32();
+
+            Skip(
+                4 + // EquipmentType argument 1 (ArmourSlot, WeaponType, CharmPresence, KinsectPresence, None)
+                4 + // IdInClass
+                4 + // UpgradeLevel
+                4   // UpgradePoints
+            );
+
+            if (equipmentType == EquipmentType.Armor || equipmentType == EquipmentType.Weapon)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    uint deco = reader.ReadUInt32();
+
+                    if (deco == uint.MaxValue)
+                        continue;
+
+                    uint id = MasterData.FindJewelInfoByEquippedItemId(deco).ItemId;
+
+                    if (equippedJewels.TryGetValue(id, out uint quantity))
+                        equippedJewels[id] = quantity + 1;
+                    else
+                        equippedJewels.Add(id, 1);
+                }
+            }
+            else
+            {
+                Skip(
+                    4 + // DecoSlot1
+                    4 + // DecoSlot2
+                    4   // DecoSlot3
+                );
+            }
+
+            // Skip the remaining of the whole structure
+            Skip(
+                4 + // EquipmentType argument 2 (BowGunMod1, KinsectType)
+                4 + // BowGunMod2
+                4 + // BowGunMod3
+                4 + // Augment1
+                4 + // Augment2
+                4 + // Augment3
+                8   // Unknown
+            );
+        }
+
+        /// <summary>
+        /// This method remap equipped jewel index to match unequipped jewel ordering.
+        /// Equipped Miasma jewel should be 81 but is 97.
+        /// All equipped jewels after Miamsa (Scent and following) are shifted by 1.
+        /// Those become the correct indices in the filtered out unequipped jewels...
+        /// </summary>
+        /// <param name="gameEquippedJewelId">Identifier of the equipped jewel in the game.</param>
+        /// <returns>Returns the corrected equipped jewel identifier, in game value.</returns>
+        public static uint RemapEquippedJewelId(uint gameEquippedJewelId)
+        {
+            if (gameEquippedJewelId < 81)
+                return gameEquippedJewelId;
+            else if (gameEquippedJewelId < 97)
+                return gameEquippedJewelId + 1;
+            return 81;
         }
     }
 
