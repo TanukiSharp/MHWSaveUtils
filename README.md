@@ -21,7 +21,7 @@ Maybe the blowfish algorithm itself takes too much overhead for such optimizatio
 
 # Thanks
 
-Special thanks to @Nexusphobiker from who I used the decrypt function, the very base for all other things.
+Special thanks to **Nexusphobiker** from who I used the decrypt function, the very base for all other things.
 https://github.com/Nexusphobiker/MHWSaveDecrypter
 
 v00d00y, Asterisk
