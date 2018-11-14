@@ -47,12 +47,11 @@ namespace MHWSaveUtils.Tester
             //File.WriteAllBytes(targetFilename, ms.ToArray());
 
             PrintSeparator('=');
-
-            ReadDecorations(ms);
-
-            PrintSeparator('=');
-
-            ReadWeaponUsage(ms);
+            ReadEquipments(ms);
+            //PrintSeparator('=');
+            //ReadDecorations(ms);
+            //PrintSeparator('=');
+            //ReadWeaponUsage(ms);
         }
 
         private void PrintSeparator(char sep)
@@ -67,9 +66,25 @@ namespace MHWSaveUtils.Tester
             Console.WriteLine($"Playtime: {MiscUtils.PlaytimeToGameString(baseSaveSlotInfo.Playtime)}");
         }
 
+        private void ReadEquipments(Stream saveData)
+        {
+            var equipmentsReader = new EquipmentsReader(saveData);
+
+            foreach (EquipmentsSaveSlotInfo equipmentInfo in equipmentsReader.Read())
+            {
+                PrintBaseSaveData(equipmentInfo);
+                Console.WriteLine();
+                Console.WriteLine($"{equipmentInfo.Equipments.Length} equipments");
+                foreach (Equipment equipment in equipmentInfo.Equipments)
+                    Console.WriteLine($"   [{equipment.SortIndex}] {equipment.Type}: {equipment.ClassId}");
+                PrintSeparator('-');
+            }
+        }
+
         private void ReadDecorations(Stream saveData)
         {
             var decorationsReader = new DecorationsReader(saveData);
+
             foreach (DecorationsSaveSlotInfo decorationInfo in decorationsReader.Read())
             {
                 PrintBaseSaveData(decorationInfo);

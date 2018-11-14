@@ -138,23 +138,6 @@ namespace MHWSaveUtils
                 8   // Unknown
             );
         }
-
-        /// <summary>
-        /// This method remap equipped jewel index to match unequipped jewel ordering.
-        /// Equipped Miasma jewel should be 81 but is 97.
-        /// All equipped jewels after Miamsa (Scent and following) are shifted by 1.
-        /// Those become the correct indices in the filtered out unequipped jewels...
-        /// </summary>
-        /// <param name="gameEquippedJewelId">Identifier of the equipped jewel in the game.</param>
-        /// <returns>Returns the corrected equipped jewel identifier, in game value.</returns>
-        public static uint RemapEquippedJewelId(uint gameEquippedJewelId)
-        {
-            if (gameEquippedJewelId < 81)
-                return gameEquippedJewelId;
-            else if (gameEquippedJewelId < 97)
-                return gameEquippedJewelId + 1;
-            return 81;
-        }
     }
 
     public class DecorationsSaveSlotInfo : BaseSaveSlotInfo

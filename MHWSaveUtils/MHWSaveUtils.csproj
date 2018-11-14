@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Authors>Sebastien ROBERT</Authors>
     <Description>Contains utility code to find, decrypt and read Monster Hunter: Wold save data.</Description>
     <Copyright></Copyright>
