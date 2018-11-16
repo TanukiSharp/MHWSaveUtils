@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,10 @@ namespace MHWSaveUtils.Tester
 
                 await ReadAccount(saveDataInfo);
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Press Enter key to exit...");
+            Console.ReadLine();
         }
 
         private async Task ReadAccount(SaveDataInfo saveDataInfo)
@@ -75,8 +80,8 @@ namespace MHWSaveUtils.Tester
                 PrintBaseSaveData(equipmentInfo);
                 Console.WriteLine();
                 Console.WriteLine($"{equipmentInfo.Equipments.Length} equipments");
-                foreach (Equipment equipment in equipmentInfo.Equipments)
-                    Console.WriteLine($"   [{equipment.SortIndex}] {equipment.Type}: {equipment.ClassId}");
+                foreach (Equipment equipment in equipmentInfo.Equipments.OrderBy(x => x.SortIndex))
+                    Console.WriteLine(equipment);
                 PrintSeparator('-');
             }
         }

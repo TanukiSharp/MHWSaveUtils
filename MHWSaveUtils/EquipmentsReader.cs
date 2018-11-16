@@ -176,6 +176,22 @@ namespace MHWSaveUtils
 
             return result;
         }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder($"[{SortIndex}] {Type} {ClassId}");
+
+            if (Type == EquipmentType.Armor)
+                sb.Append($" ({ArmorPieceType})");
+            else if (Type == EquipmentType.Weapon)
+                sb.Append($" ({WeaponType})");
+            else if (Type == EquipmentType.Charm)
+                sb.Append($" (Id: {CharmId})");
+            else if (Type == EquipmentType.Kinsect)
+                sb.Append($" (Id: {KinsectId}");
+
+            return sb.ToString();
+        }
     }
 
     public class EquipmentsSaveSlotInfo : BaseSaveSlotInfo
