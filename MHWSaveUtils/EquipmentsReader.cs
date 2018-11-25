@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -15,7 +15,7 @@ namespace MHWSaveUtils
         {
         }
 
-        public IEnumerable<object> Read()
+        public IEnumerable<EquipmentsSaveSlotInfo> Read()
         {
             GotoSection3PastSignature();
 
