@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -85,8 +85,6 @@ namespace MHWSaveUtils
 
             return new DecorationsSaveSlotInfo(baseSaveSlotInfo, decorations);
         }
-
-        private IList<uint> availableJewels;
 
         public void ReadEquipmentSlot(Dictionary<uint, uint> equippedJewels)
         {
