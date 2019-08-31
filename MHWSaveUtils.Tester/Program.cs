@@ -52,7 +52,7 @@ namespace MHWSaveUtils.Tester
             //File.WriteAllBytes(targetFilename, ms.ToArray());
 
             PrintSeparator('=');
-            ReadEquipments(ms);
+            ReadEquipment(ms);
             //PrintSeparator('=');
             //ReadDecorations(ms);
             //PrintSeparator('=');
@@ -64,23 +64,23 @@ namespace MHWSaveUtils.Tester
             Console.WriteLine(new string(sep, Console.WindowWidth - 1));
         }
 
-        private void PrintBaseSaveData(BaseSaveSlotInfo baseSaveSlotInfo)
+        private void PrintBaseSaveData(SaveSlotInfoBase baseSaveSlotInfo)
         {
             Console.WriteLine($"Hunter name: {baseSaveSlotInfo.Name}");
             Console.WriteLine($"Rank: {baseSaveSlotInfo.Rank}");
             Console.WriteLine($"Playtime: {MiscUtils.PlaytimeToGameString(baseSaveSlotInfo.Playtime)}");
         }
 
-        private void ReadEquipments(Stream saveData)
+        private void ReadEquipment(Stream saveData)
         {
-            var equipmentsReader = new EquipmentsReader(saveData);
+            var equipmentReader = new EquipmentReader(saveData);
 
-            foreach (EquipmentsSaveSlotInfo equipmentInfo in equipmentsReader.Read())
+            foreach (EquipmentSaveSlotInfo equipmentInfo in equipmentReader.Read())
             {
                 PrintBaseSaveData(equipmentInfo);
                 Console.WriteLine();
-                Console.WriteLine($"{equipmentInfo.Equipments.Length} equipments");
-                foreach (Equipment equipment in equipmentInfo.Equipments.OrderBy(x => x.SortIndex))
+                Console.WriteLine($"{equipmentInfo.Equipment.Length} equipment");
+                foreach (Equipment equipment in equipmentInfo.Equipment.OrderBy(x => x.SortIndex))
                     Console.WriteLine(equipment);
                 PrintSeparator('-');
             }

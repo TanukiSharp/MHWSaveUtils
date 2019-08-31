@@ -7,14 +7,14 @@ using System.Text;
 
 namespace MHWSaveUtils
 {
-    public class DecorationsReader : SaveDataReaderBase
+    public class DecorationsReader : SaveDataReaderBase<DecorationsSaveSlotInfo>
     {
         public DecorationsReader(Stream saveData)
             : base(saveData)
         {
         }
 
-        public IEnumerable<DecorationsSaveSlotInfo> Read()
+        public override IEnumerable<DecorationsSaveSlotInfo> Read()
         {
             GotoSection3PastSignature();
 
@@ -34,7 +34,7 @@ namespace MHWSaveUtils
 
         private DecorationsSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
-            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded(slotNumber);
+            SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
             // Skip until beginning of struct itemBox
             Skip(
@@ -138,12 +138,12 @@ namespace MHWSaveUtils
         }
     }
 
-    public class DecorationsSaveSlotInfo : BaseSaveSlotInfo
+    public class DecorationsSaveSlotInfo : SaveSlotInfoBase
     {
         public IReadOnlyDictionary<uint, uint> Decorations { get; }
 
         public DecorationsSaveSlotInfo(
-            BaseSaveSlotInfo baseSaveSlotInfo,
+            SaveSlotInfoBase baseSaveSlotInfo,
             IDictionary<uint, uint> decorations
         )
             : base(baseSaveSlotInfo)

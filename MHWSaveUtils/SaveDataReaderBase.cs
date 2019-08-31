@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MHWSaveUtils
 {
-    public class BaseSaveSlotInfo
+    public class SaveSlotInfoBase
     {
         public SaveDataInfo SaveDataInfo { get; private set; }
         public int SlotNumber { get; }
@@ -16,7 +16,7 @@ namespace MHWSaveUtils
         public uint ExperiencePoints { get; }
         public uint Playtime { get; }
 
-        public BaseSaveSlotInfo(int slotNumber, string name, uint rank, uint zeni, uint researchPoints, uint experiencePoints, uint playtime)
+        public SaveSlotInfoBase(int slotNumber, string name, uint rank, uint zeni, uint researchPoints, uint experiencePoints, uint playtime)
         {
             SlotNumber = slotNumber;
             Name = name;
@@ -27,7 +27,7 @@ namespace MHWSaveUtils
             Playtime = playtime;
         }
 
-        public BaseSaveSlotInfo(BaseSaveSlotInfo copy)
+        public SaveSlotInfoBase(SaveSlotInfoBase copy)
         {
             SaveDataInfo = copy.SaveDataInfo;
             SlotNumber = copy.SlotNumber;
@@ -45,7 +45,7 @@ namespace MHWSaveUtils
         }
     }
 
-    public abstract class SaveDataReaderBase : IDisposable
+    public abstract class SaveDataReaderBase<T> : IDisposable where T : SaveSlotInfoBase
     {
         protected readonly BinaryReader reader;
         protected readonly long saveDataLength;
@@ -65,6 +65,8 @@ namespace MHWSaveUtils
 
             reader = new BinaryReader(saveData, Encoding.ASCII, true);
         }
+
+        public abstract IEnumerable<T> Read();
 
         private bool isDisposed;
 
@@ -116,7 +118,7 @@ namespace MHWSaveUtils
                 throw new FormatException($"Invalid section 3 signature, expected {Constants.Section3Signature:X8} but read {section3Signature:X8}");
         }
 
-        protected BaseSaveSlotInfo ReaderUntilPlaytimeIncluded(int slotNumber)
+        protected SaveSlotInfoBase ReadUntilPlaytimeIncluded(int slotNumber)
         {
             byte[] hunterNameBytes = reader.ReadBytes(64);
             string hunterName = Encoding.UTF8.GetString(hunterNameBytes).TrimEnd('\0');
@@ -126,7 +128,7 @@ namespace MHWSaveUtils
             uint hunterXP = reader.ReadUInt32();
             uint playTime = reader.ReadUInt32();
 
-            return new BaseSaveSlotInfo(slotNumber, hunterName, hunterRank, zeni, researchPoints, hunterXP, playTime);
+            return new SaveSlotInfoBase(slotNumber, hunterName, hunterRank, zeni, researchPoints, hunterXP, playTime);
         }
 
         protected void Skip(long count)

@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace MHWSaveUtils
 {
-    public class WeaponUsageReader : SaveDataReaderBase
+    public class WeaponUsageReader : SaveDataReaderBase<WeaponUsageSaveSlotInfo>
     {
         public WeaponUsageReader(Stream saveData)
             : base(saveData)
         {
         }
 
-        public IEnumerable<WeaponUsageSaveSlotInfo> Read()
+        public override IEnumerable<WeaponUsageSaveSlotInfo> Read()
         {
             GotoSection3PastSignature();
 
@@ -38,7 +38,7 @@ namespace MHWSaveUtils
 
         private WeaponUsageSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
-            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded(slotNumber);
+            SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
             Skip(
                 4 + // unknown
@@ -110,14 +110,14 @@ namespace MHWSaveUtils
         }
     }
 
-    public class WeaponUsageSaveSlotInfo : BaseSaveSlotInfo
+    public class WeaponUsageSaveSlotInfo : SaveSlotInfoBase
     {
         public WeaponUsage LowRank { get; }
         public WeaponUsage HighRank { get; }
         public WeaponUsage Investigations { get; }
 
         public WeaponUsageSaveSlotInfo(
-            BaseSaveSlotInfo baseSaveSlotInfo,
+            SaveSlotInfoBase baseSaveSlotInfo,
             WeaponUsage lowRank, WeaponUsage highRank, WeaponUsage investigations)
             : base(baseSaveSlotInfo)
         {

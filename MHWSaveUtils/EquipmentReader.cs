@@ -8,14 +8,14 @@ using System.Text;
 
 namespace MHWSaveUtils
 {
-    public class EquipmentsReader : SaveDataReaderBase
+    public class EquipmentReader : SaveDataReaderBase<EquipmentSaveSlotInfo>
     {
-        public EquipmentsReader(Stream saveData)
+        public EquipmentReader(Stream saveData)
             : base(saveData)
         {
         }
 
-        public IEnumerable<EquipmentsSaveSlotInfo> Read()
+        public override IEnumerable<EquipmentSaveSlotInfo> Read()
         {
             GotoSection3PastSignature();
 
@@ -27,15 +27,15 @@ namespace MHWSaveUtils
 
             for (int i = 0; i < 3; i++)
             {
-                EquipmentsSaveSlotInfo saveSlotInfo = ReadSaveSlot(i + 1);
+                EquipmentSaveSlotInfo saveSlotInfo = ReadSaveSlot(i + 1);
                 if (saveSlotInfo != null)
                     yield return saveSlotInfo;
             }
         }
 
-        private EquipmentsSaveSlotInfo ReadSaveSlot(int slotNumber)
+        private EquipmentSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
-            BaseSaveSlotInfo baseSaveSlotInfo = ReaderUntilPlaytimeIncluded(slotNumber);
+            SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
             // Skip until beginning of struct equipmentSlot
             Skip(
@@ -54,14 +54,14 @@ namespace MHWSaveUtils
                 8 * 200   // struct decorations
             );
 
-            var equipments = new List<Equipment>();
+            var equipment = new List<Equipment>();
 
             // Read 1000 equipment slots
             for (int i = 0; i < 1000; i++)
             {
                 var eqp = Equipment.Read(reader);
                 if (eqp != null)
-                    equipments.Add(eqp);
+                    equipment.Add(eqp);
             }
 
             // Skip until the end of the struct saveSlot
@@ -78,7 +78,7 @@ namespace MHWSaveUtils
             if (baseSaveSlotInfo.Playtime == 0)
                 return null;
 
-            return new EquipmentsSaveSlotInfo(equipments.ToArray(), baseSaveSlotInfo);
+            return new EquipmentSaveSlotInfo(equipment.ToArray(), baseSaveSlotInfo);
         }
     }
 
@@ -194,14 +194,14 @@ namespace MHWSaveUtils
         }
     }
 
-    public class EquipmentsSaveSlotInfo : BaseSaveSlotInfo
+    public class EquipmentSaveSlotInfo : SaveSlotInfoBase
     {
-        public Equipment[] Equipments { get; }
+        public Equipment[] Equipment { get; }
 
-        public EquipmentsSaveSlotInfo(Equipment[] equipments, BaseSaveSlotInfo baseSaveSlotInfo)
+        public EquipmentSaveSlotInfo(Equipment[] equipment, SaveSlotInfoBase baseSaveSlotInfo)
             : base(baseSaveSlotInfo)
         {
-            Equipments = equipments;
+            Equipment = equipment;
         }
     }
 }
