@@ -40,7 +40,7 @@ namespace MHWSaveUtils.Tester
 
             using (Stream inputStream = File.OpenRead(saveDataInfo.SaveDataFullFilename))
             {
-                await Crypto.DecryptAsync(inputStream, ms, CancellationToken.None);
+                await Crypto.ParallelDecryptAsync(inputStream, ms, CancellationToken.None);
             }
 
             stopwatch.Stop();
