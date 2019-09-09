@@ -52,7 +52,9 @@ namespace MHWSaveUtils.Tester
             //File.WriteAllBytes(targetFilename, ms.ToArray());
 
             PrintSeparator('=');
-            ReadEquipment(ms);
+            ReadMonsterStats(ms);
+            //PrintSeparator('=');
+            //ReadEquipment(ms);
             //PrintSeparator('=');
             //ReadDecorations(ms);
             //PrintSeparator('=');
@@ -69,6 +71,47 @@ namespace MHWSaveUtils.Tester
             Console.WriteLine($"Hunter name: {baseSaveSlotInfo.Name}");
             Console.WriteLine($"Rank: {baseSaveSlotInfo.Rank}");
             Console.WriteLine($"Playtime: {MiscUtils.PlaytimeToGameString(baseSaveSlotInfo.Playtime)}");
+        }
+
+        private void ReadMonsterStats(Stream saveData)
+        {
+            var equipmentReader = new MonsterStatsReader(saveData);
+
+            foreach (MonsterStatsSaveSlotInfo monsterStatsInfo in equipmentReader.Read())
+            {
+                PrintBaseSaveData(monsterStatsInfo);
+                Console.WriteLine();
+                foreach (MonsterStatsInfo monsterStats in monsterStatsInfo.MonsterStats)
+                {
+                    //Console.WriteLine($"{monsterStats.Name,-20}{monsterStats.Captured,-5}{monsterStats.Slayed,-10}{monsterStats.Smallest,-5}{monsterStats.Largest,-10}{monsterStats.ResearchLevel}");
+
+                    //if (monsterStats.HasCrowns && (monsterStats.HasMiniCrown == false || monsterStats.HasGoldCrown == false))
+                        Console.WriteLine($"{monsterStats.Name,-20}{monsterStats.Slayed + monsterStats.Captured,-5}{monsterStats.Captured,-10}{MiniCrown(monsterStats),-3}{LargeCrown(monsterStats),-10}{monsterStats.ResearchLevel}");
+                }
+                PrintSeparator('-');
+            }
+
+            string MiniCrown(MonsterStatsInfo monsterStats)
+            {
+                if (monsterStats.HasCrowns == false)
+                    return " ";
+
+                if (monsterStats.HasMiniCrown)
+                    return "_";
+
+                return "x";
+            }
+
+            string LargeCrown(MonsterStatsInfo monsterStats)
+            {
+                if (monsterStats.HasCrowns == false)
+                    return " ";
+
+                if (monsterStats.HasGoldCrown)
+                    return "_";
+
+                return "x";
+            }
         }
 
         private void ReadEquipment(Stream saveData)
