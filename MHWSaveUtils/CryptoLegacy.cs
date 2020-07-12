@@ -12,7 +12,7 @@ namespace MHWSaveUtils
     // Then optimzed
     // Interestingly, the unsafe way is as fast as the managed way (was expecting much faster)
 
-    public static class Crypto
+    public static class CryptoLegacy
     {
         private static readonly byte[] key_4096_bytes = {
             0x79, 0xE5, 0x70, 0x83, 0xE1, 0xB9, 0xA4, 0x44, 0xC4, 0xB0, 0x6C, 0xF8, 0x82, 0x1D, 0x3A, 0xAD, 0xD9, 0xF4, 0xC9, 0xBF, 0x84, 0xD0, 0x0F, 0x83, 0x60, 0x51, 0xD5, 0xDD, 0x58, 0x9F, 0xE9, 0xD4,
@@ -157,16 +157,14 @@ namespace MHWSaveUtils
             0xCB, 0xE6, 0x78, 0xAF, 0xDA, 0xFA, 0xA9, 0x88
         };
 
-        private static readonly uint[] key_4096;
-        private static readonly uint[] key_72;
+        private static readonly uint[] key_4096 = new uint[key_4096_bytes.Length / 4];
+        private static readonly uint[] key_72 = new uint[key_72_bytes.Length];
 
-        static Crypto()
+        static CryptoLegacy()
         {
-            key_4096 = new uint[key_4096_bytes.Length / 4];
             for (int i = 0; i < key_4096_bytes.Length; i += 4)
                 key_4096[i / 4] = BitConverter.ToUInt32(key_4096_bytes, i);
 
-            key_72 = new uint[key_72_bytes.Length];
             for (int i = 0; i < key_72_bytes.Length; i += 4)
                 key_72[i / 4] = BitConverter.ToUInt32(key_72_bytes, i);
         }
