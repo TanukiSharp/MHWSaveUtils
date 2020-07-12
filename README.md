@@ -6,22 +6,16 @@ DO NOT use this code, in part or in totality, to cheat, or produce code that wou
 
 This library contains utility code to find, decrypt and read save data for Monster Hunter: World.
 
-The purpose of this project to factorize code across different projects.
+The purpose of this project is to factorize code across different projects.
 
 - [Armory](https://github.com/TanukiSharp/MHArmory) an armor set search application
 - [MHWWeaponUsage](https://github.com/TanukiSharp/MHWWeaponUsage) a tool that display your weapon usage
 
-# Interesting research
-
-I've implemented an unsafe decryption method, but surprisingly it is as fast as the managed decryption method.
-
-I was expecting it to be much fast since it does in-place decryption without tons of unnecessary copies. Also, parallelizing the unsafe method does not make it faster either.
-
-Maybe the blowfish algorithm itself takes too much overhead for such optimizations to end up being insignificant.
-
 # Thanks
 
-Special thanks to **Nexusphobiker** from who I used the decrypt function, the very base for all other things.
-https://github.com/Nexusphobiker/MHWSaveDecrypter
+Special thanks to **Asterisk** from who I used the Iceborne decryption function, the very base for all other things.<br/>
+https://github.com/AsteriskAmpersand/MHW-Save-Editor
 
-v00d00y, Asterisk
+Also thanks to:
+- **v00d00y** for helping with details
+- **Nexusphobiker** for the World decryption function (deprecated)
