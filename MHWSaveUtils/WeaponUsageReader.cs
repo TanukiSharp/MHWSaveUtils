@@ -20,8 +20,7 @@ namespace MHWSaveUtils
 
             Skip(
                 4 + // SAVEFILE.data.section.unknown
-                8 + // SAVEFILE.data.section.sectionSize
-                4   // SAVEFILE.data.section.sectionData[2].unknown (sectionData_3.unknown)
+                8 // sectionSize
             );
 
             for (int i = 0; i < 3; i++)
@@ -32,70 +31,41 @@ namespace MHWSaveUtils
             }
         }
 
-        // Slot 0 Active @ 0x3F3D64
-        // Slot 1 Active @ 0x4E9E74
-        // Slot 2 Active @ 0x5DFF84
-
         private WeaponUsageSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
+            Skip(4); // unknown
+
             SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
             Skip(
-                4 + // unknown
                 Constants.HunterAppearanceStructureSize + // H_APPEARANCE
+                382 + // unknown
                 Constants.PalicoAppearanceStructureSize // P_APPEARANCE
             );
 
             // Here is struct GUILDCARD
 
             Skip(
-                167 + // begining of GUILDCARD struct
+                171 + // begining of GUILDCARD struct
                 Constants.HunterAppearanceStructureSize + // hunterAppearance (H_APPEARANCE)
-                Constants.PalicoAppearanceStructureSize + // palicoAppearance (P_APPEARANCE)
-                Constants.HunterEquipmentStructureSize + // hunterEquipment
-                92 + // unknown
-                Constants.PalicoStructureSize + // struct palico
-                63 // remaining of the struct GUILDCARD until weapon usage
+                212 + // unknown
+                64 + // Palico name
+                4 // Palico rank
+            );
+
+            Skip(
+                194 // unknown
             );
 
             var lowRankWeaponUsage = WeaponUsage.Read(reader);
             var highRankWeaponUsage = WeaponUsage.Read(reader);
             var investigationsWeaponUsage = WeaponUsage.Read(reader);
+            var masterRankWeaponUsage = WeaponUsage.Read(reader);
 
-            // Skip the remaining of the GUILDCARD structure
             Skip(
-                1 + // poseID
-                1 + // expressionID
-                1 + // backgroundID
-                1 + // stickerID
-                256 + // greeting
-                256 + // title
-                2 + // titleFirst
-                2 + // titleMiddle
-                2 + // titleLast
-                4 + // positionX
-                4 + // positionY
-                4 + // zoom
-                10 * Constants.ArenaStatsStructSize + // arenaRecords
-                4 * Constants.Creatures16StructSize + // creatureStats
-                Constants.Creatures8StructSize // researchLevel
-            );
-
-            // Skip the remaining of the saveSlot structure
-            Skip(
-                Constants.GuildCardStructureSize * 100 + // sharedGC
-                0x019e36 + // unknown
-                Constants.ItemLoadoutsStructureSize + // itemLoadouts
-                8 + //  unknown
-                Constants.ItemPouchStructureSize + // itemPouch
-                Constants.ItemBoxStructureSize + // itemBox
-                0x034E3C + // unknown
-                42 * 250 + // investigations
-                0x0FB9 + // unknown
-                Constants.EquipLoadoutsStructureSize + // equipLoadout
-                0x6521 + // unknown
-                Constants.DlcTypeSize * 256 + // DLCClaimed
-                0x2A5D // unknown
+                32 + // unknown
+                2_134_609 + // 2_136_256 (total size of a save slot) - 1647 (bytes read and skipped so far)
+                512 // Hash things
             );
 
             if (baseSaveSlotInfo.Playtime == 0)
@@ -105,6 +75,7 @@ namespace MHWSaveUtils
                 baseSaveSlotInfo,
                 lowRankWeaponUsage,
                 highRankWeaponUsage,
+                masterRankWeaponUsage,
                 investigationsWeaponUsage
             );
         }
@@ -114,15 +85,17 @@ namespace MHWSaveUtils
     {
         public WeaponUsage LowRank { get; }
         public WeaponUsage HighRank { get; }
+        public WeaponUsage MasterRank { get; }
         public WeaponUsage Investigations { get; }
 
         public WeaponUsageSaveSlotInfo(
             SaveSlotInfoBase baseSaveSlotInfo,
-            WeaponUsage lowRank, WeaponUsage highRank, WeaponUsage investigations)
+            WeaponUsage lowRank, WeaponUsage highRank, WeaponUsage masterRank, WeaponUsage investigations)
             : base(baseSaveSlotInfo)
         {
             LowRank = lowRank;
             HighRank = highRank;
+            MasterRank = masterRank;
             Investigations = investigations;
         }
     }

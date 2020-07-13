@@ -8,7 +8,7 @@ namespace MHWSaveUtils
     {
         public const uint Section3Signature = 0xAD35B985;
 
-        public const long HunterAppearanceStructureSize = 120; // H_APPEARANCE
+        public const long HunterAppearanceStructureSize = 168; // H_APPEARANCE
         public const long PalicoAppearanceStructureSize = 44; // P_APPEARANCE
         public const long WeaponUsageStructureSize = 14 * 2; // WEAPONUSAGE
         public const long HunterEquipmentStructureSize = 18 * 4; // struct hunterEquipment
@@ -18,15 +18,7 @@ namespace MHWSaveUtils
         public const long ArenaStatsStructSize = 2 + ArenaRecordStructureSize * 5; // ARENASTATS
         public const long Creatures8StructSize = 64; // CREATURES8
         public const long Creatures16StructSize = 64 * 2; // CREATURES16
-        public const long GuildCardStructureSize = // GUILDCARD
-            1020 +
-            HunterEquipmentStructureSize +
-            PalicoStructureSize +
-            3 * WeaponUsageStructureSize +
-            10 * ArenaStatsStructSize +
-            4 * Creatures16StructSize +
-            Creatures8StructSize;
-
+        public const long GuildCardStructureSize = 7800; // GUILDCARD
         public const long ItemLoadoutStructureSize = 1128; // struct loadout
         public const long ItemLoadoutsStructureSize = ItemLoadoutStructureSize * 56 + 56; // struct itemLoadouts
         public const long ItemPouchStructureSize = 24 * 8 + 16 * 8 + 256 + 4 * 8; // struct itemPouch

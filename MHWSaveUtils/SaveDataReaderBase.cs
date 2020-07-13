@@ -10,20 +10,20 @@ namespace MHWSaveUtils
         public SaveDataInfo SaveDataInfo { get; private set; }
         public int SlotNumber { get; }
         public string Name { get; }
-        public uint Rank { get; }
+        public uint HR { get; }
+        public uint MR { get; }
         public uint Zeni { get; }
         public uint ResearchPoints { get; }
-        public uint ExperiencePoints { get; }
         public uint Playtime { get; }
 
-        public SaveSlotInfoBase(int slotNumber, string name, uint rank, uint zeni, uint researchPoints, uint experiencePoints, uint playtime)
+        public SaveSlotInfoBase(int slotNumber, string name, uint hunterRank, uint masterRank, uint zeni, uint researchPoints, uint playtime)
         {
             SlotNumber = slotNumber;
             Name = name;
             Zeni = zeni;
             ResearchPoints = researchPoints;
-            ExperiencePoints = experiencePoints;
-            Rank = rank;
+            HR = hunterRank;
+            MR = masterRank;
             Playtime = playtime;
         }
 
@@ -34,8 +34,8 @@ namespace MHWSaveUtils
             Name = copy.Name;
             Zeni = copy.Zeni;
             ResearchPoints = copy.ResearchPoints;
-            ExperiencePoints = copy.ExperiencePoints;
-            Rank = copy.Rank;
+            HR = copy.HR;
+            MR = copy.MR;
             Playtime = copy.Playtime;
         }
 
@@ -123,12 +123,13 @@ namespace MHWSaveUtils
             byte[] hunterNameBytes = reader.ReadBytes(64);
             string hunterName = Encoding.UTF8.GetString(hunterNameBytes).TrimEnd('\0');
             uint hunterRank = reader.ReadUInt32();
+            uint masterRank = reader.ReadUInt32();
             uint zeni = reader.ReadUInt32();
             uint researchPoints = reader.ReadUInt32();
-            uint hunterXP = reader.ReadUInt32();
+            Skip(8);
             uint playTime = reader.ReadUInt32();
 
-            return new SaveSlotInfoBase(slotNumber, hunterName, hunterRank, zeni, researchPoints, hunterXP, playTime);
+            return new SaveSlotInfoBase(slotNumber, hunterName, hunterRank, masterRank, zeni, researchPoints, playTime);
         }
 
         protected void Skip(long count)
