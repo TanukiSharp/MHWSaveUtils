@@ -27,6 +27,14 @@ namespace MHWSaveUtils
         private uint[] bf_s2;
         private uint[] bf_s3;
 
+        private static readonly (int offset, int size)[] encryptedRegions = new[]
+        {
+            (0x70, 0xDA50),
+            (0x3010D8, 0x2098C0),
+            (0x50AB98, 0x2098C0),
+            (0x714658, 0x2098C0)
+        };
+
         /// <summary>
         /// Decrypts a byte array in-place.
         /// </summary>
@@ -38,6 +46,8 @@ namespace MHWSaveUtils
                 // new ParallelOptions { MaxDegreeOfParallelism = 1 }, // Uncomment this line for debugging.
                 i => BlockDecrypt(buffer, i)
             );
+
+            Parallel.ForEach(encryptedRegions, region => Cirilla.Core.Crypto.IceborneCrypto.DecryptRegion(buffer, region.offset, region.size));
         }
 
         /// <summary>

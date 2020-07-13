@@ -13,9 +13,13 @@ The purpose of this project is to factorize code across different projects.
 
 # Thanks
 
-Special thanks to **Asterisk** from who I used the Iceborne decryption function, the very base for all other things.<br/>
+Special thanks to:
+
+- **Asterisk** from who I used the Iceborne decryption function<br/>
 https://github.com/AsteriskAmpersand/MHW-Save-Editor
+- **Fusion** from who I used the save slot decryption function and same Iceborn save data structure<br/>
+https://github.com/Fusion86/Cirilla
 
 Also thanks to:
-- **v00d00y** for helping with details
+- **v00d00y** for helping with details about save data structure
 - **Nexusphobiker** for the World decryption function (deprecated)
