@@ -61,9 +61,10 @@ namespace MHWSaveUtils
             var highRankWeaponUsage = WeaponUsage.Read(reader);
             var investigationsWeaponUsage = WeaponUsage.Read(reader);
             var masterRankWeaponUsage = WeaponUsage.Read(reader);
+            var guidingLandsWeaponUsage = WeaponUsage.Read(reader);
 
             Skip(
-                32 + // unknown
+                4 + // unknown
                 2_134_609 + // 2_136_256 (total size of a save slot) - 1647 (bytes read and skipped so far)
                 512 // Hash things
             );
@@ -76,7 +77,8 @@ namespace MHWSaveUtils
                 lowRankWeaponUsage,
                 highRankWeaponUsage,
                 masterRankWeaponUsage,
-                investigationsWeaponUsage
+                investigationsWeaponUsage,
+                guidingLandsWeaponUsage
             );
         }
     }
@@ -87,16 +89,18 @@ namespace MHWSaveUtils
         public WeaponUsage HighRank { get; }
         public WeaponUsage MasterRank { get; }
         public WeaponUsage Investigations { get; }
+        public WeaponUsage GuidingLands { get; }
 
         public WeaponUsageSaveSlotInfo(
             SaveSlotInfoBase baseSaveSlotInfo,
-            WeaponUsage lowRank, WeaponUsage highRank, WeaponUsage masterRank, WeaponUsage investigations)
+            WeaponUsage lowRank, WeaponUsage highRank, WeaponUsage masterRank, WeaponUsage investigations, WeaponUsage guidingLands)
             : base(baseSaveSlotInfo)
         {
             LowRank = lowRank;
             HighRank = highRank;
             MasterRank = masterRank;
             Investigations = investigations;
+            GuidingLands = guidingLands;
         }
     }
 
