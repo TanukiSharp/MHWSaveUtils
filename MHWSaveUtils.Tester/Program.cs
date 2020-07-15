@@ -24,7 +24,17 @@ namespace MHWSaveUtils.Tester
                 Console.WriteLine($"SaveDataFullFilename: {saveDataInfo.SaveDataFullFilename}");
                 Console.WriteLine();
 
-                await ReadAccount(saveDataInfo);
+                while (true)
+                {
+                    await ReadAccount(saveDataInfo);
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to reload...");
+
+                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                        break;
+
+                    Console.Clear();
+                }
             }
 
             Console.WriteLine();
@@ -34,13 +44,17 @@ namespace MHWSaveUtils.Tester
 
         private async Task ReadAccount(SaveDataInfo saveDataInfo)
         {
-            var ms = new MemoryStream();
+            MemoryStream ms;
 
             var stopwatch = Stopwatch.StartNew();
+            var crypto = new Crypto();
 
             using (Stream inputStream = File.OpenRead(saveDataInfo.SaveDataFullFilename))
             {
-                await Crypto.ParallelDecryptAsync(inputStream, ms, CancellationToken.None);
+                byte[] buffer = new byte[inputStream.Length];
+                await inputStream.ReadAsync(buffer, 0, buffer.Length, CancellationToken.None);
+                await crypto.DecryptAsync(buffer);
+                ms = new MemoryStream(buffer);
             }
 
             stopwatch.Stop();
@@ -69,7 +83,8 @@ namespace MHWSaveUtils.Tester
         private void PrintBaseSaveData(SaveSlotInfoBase baseSaveSlotInfo)
         {
             Console.WriteLine($"Hunter name: {baseSaveSlotInfo.Name}");
-            Console.WriteLine($"Rank: {baseSaveSlotInfo.Rank}");
+            Console.WriteLine($"HR: {baseSaveSlotInfo.HR}");
+            Console.WriteLine($"MR: {baseSaveSlotInfo.MR}");
             Console.WriteLine($"Playtime: {MiscUtils.PlaytimeToGameString(baseSaveSlotInfo.Playtime)}");
         }
 
@@ -81,12 +96,14 @@ namespace MHWSaveUtils.Tester
             {
                 PrintBaseSaveData(monsterStatsInfo);
                 Console.WriteLine();
+                int index = 0;
                 foreach (MonsterStatsInfo monsterStats in monsterStatsInfo.MonsterStats)
                 {
                     //Console.WriteLine($"{monsterStats.Name,-20}{monsterStats.Captured,-5}{monsterStats.Slayed,-10}{monsterStats.Smallest,-5}{monsterStats.Largest,-10}{monsterStats.ResearchLevel}");
 
                     //if (monsterStats.HasCrowns && (monsterStats.HasMiniCrown == false || monsterStats.HasGoldCrown == false))
-                        Console.WriteLine($"{monsterStats.Name,-20}{monsterStats.Slayed + monsterStats.Captured,-5}{monsterStats.Captured,-10}{MiniCrown(monsterStats),-3}{LargeCrown(monsterStats),-10}{monsterStats.ResearchLevel}");
+                    Console.WriteLine($"{index:d2} - {monsterStats.Name,-22}{monsterStats.Slayed + monsterStats.Captured,-5}{monsterStats.Captured,-10}{MiniCrown(monsterStats),-3}{LargeCrown(monsterStats),-10}{monsterStats.ResearchLevel}");
+                    index++;
                 }
                 PrintSeparator('-');
             }

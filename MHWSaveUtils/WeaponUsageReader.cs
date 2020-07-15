@@ -50,10 +50,7 @@ namespace MHWSaveUtils
                 Constants.HunterAppearanceStructureSize + // hunterAppearance (H_APPEARANCE)
                 212 + // unknown
                 64 + // Palico name
-                4 // Palico rank
-            );
-
-            Skip(
+                4 + // Palico rank
                 194 // unknown
             );
 
