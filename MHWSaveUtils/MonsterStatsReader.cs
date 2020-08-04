@@ -135,6 +135,9 @@ namespace MHWSaveUtils
 
         private bool HasMini(ushort smallest, MonsterBaseInfo monsterBaseInfo)
         {
+            if (smallest == 0)
+                return false;
+
             if (monsterBaseInfo.CrownSize == MonsterSize.None)
                 return false;
 
@@ -143,6 +146,9 @@ namespace MHWSaveUtils
 
         private bool HasSilver(ushort largest, MonsterBaseInfo monsterBaseInfo)
         {
+            if (largest == 0)
+                return false;
+
             if (monsterBaseInfo.CrownSize == MonsterSize.Standard)
                 return largest >= SilverStandard;
 
@@ -154,6 +160,9 @@ namespace MHWSaveUtils
 
         private bool HasGold(ushort largest, MonsterBaseInfo monsterBaseInfo)
         {
+            if (largest == 0)
+                return false;
+
             if (monsterBaseInfo.CrownSize == MonsterSize.Standard)
                 return largest >= GoldStandard;
 
