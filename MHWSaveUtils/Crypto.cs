@@ -14,18 +14,12 @@ namespace MHWSaveUtils
 {
     public class Crypto
     {
+        private readonly Blowfish blowfish;
+
         public Crypto()
         {
-            SetupKey(Encoding.ASCII.GetBytes("xieZjoe#P2134-3zmaghgpqoe0z8$3azeq"));
+            blowfish = new Blowfish("xieZjoe#P2134-3zmaghgpqoe0z8$3azeq");
         }
-
-        private const int ROUNDS = 16;
-
-        private uint[] bf_P;
-        private uint[] bf_s0;
-        private uint[] bf_s1;
-        private uint[] bf_s2;
-        private uint[] bf_s3;
 
         private static readonly (int offset, int size)[] encryptedRegions = new[]
         {
@@ -41,13 +35,48 @@ namespace MHWSaveUtils
         /// <param name="buffer">Ciphertext to decrypt.</param>
         public void Decrypt(byte[] buffer)
         {
+            blowfish.Decrypt(buffer);
+
+            Parallel.ForEach(encryptedRegions, region => Cirilla.Core.Crypto.IceborneCrypto.DecryptRegion(buffer, region.offset, region.size));
+        }
+
+        /// <summary>
+        /// Decrypts a byte array in-place.
+        /// </summary>
+        /// <param name="buffer">Ciphertext to decrypt.</param>
+        /// <returns>Returns a task that completes when decryption is done.</returns>
+        public Task DecryptAsync(byte[] buffer)
+        {
+            return Task.Run(() => Decrypt(buffer));
+        }
+    }
+
+    public class Blowfish
+    {
+        public Blowfish(string key)
+        {
+            SetupKey(Encoding.ASCII.GetBytes(key));
+        }
+
+        private const int ROUNDS = 16;
+
+        private uint[] bf_P;
+        private uint[] bf_s0;
+        private uint[] bf_s1;
+        private uint[] bf_s2;
+        private uint[] bf_s3;
+
+        /// <summary>
+        /// Decrypts a byte array in-place.
+        /// </summary>
+        /// <param name="buffer">Ciphertext to decrypt.</param>
+        public void Decrypt(byte[] buffer)
+        {
             Parallel.ForEach(
                 SteppedIterator(0, buffer.Length, 8),
                 // new ParallelOptions { MaxDegreeOfParallelism = 1 }, // Uncomment this line for debugging.
                 i => BlockDecrypt(buffer, i)
             );
-
-            Parallel.ForEach(encryptedRegions, region => Cirilla.Core.Crypto.IceborneCrypto.DecryptRegion(buffer, region.offset, region.size));
         }
 
         /// <summary>
