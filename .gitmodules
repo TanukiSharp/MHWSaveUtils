@@ -1,0 +1,8 @@
+[submodule "MHWCrypto"]
+	path = MHWCrypto
+	url = git@github.com:TanukiSharp/MHWCrypto.git
+	branch = master
+[submodule "submodules/MHWCrypto"]
+	path = submodules/MHWCrypto
+	url = git@github.com:TanukiSharp/MHWCrypto.git
+	branch = master
