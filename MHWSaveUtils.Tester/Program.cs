@@ -71,8 +71,8 @@ namespace MHWSaveUtils.Tester
             //ReadEquipment(ms);
             //PrintSeparator('=');
             //ReadDecorations(ms);
-            //PrintSeparator('=');
-            //ReadWeaponUsage(ms);
+            PrintSeparator('=');
+            ReadWeaponUsage(ms);
         }
 
         private void PrintSeparator(char sep)
@@ -99,12 +99,35 @@ namespace MHWSaveUtils.Tester
                 int index = 0;
                 foreach (MonsterStatsInfo monsterStats in monsterStatsInfo.MonsterStats)
                 {
-                    //Console.WriteLine($"{monsterStats.Name,-20}{monsterStats.Captured,-5}{monsterStats.Slayed,-10}{monsterStats.Smallest,-5}{monsterStats.Largest,-10}{monsterStats.ResearchLevel}");
+                    Console.Write($"{index:d2} - {monsterStats.Name,-22}{monsterStats.Slayed + monsterStats.Captured,-5}{monsterStats.Captured,-10}");
 
-                    //if (monsterStats.HasCrowns && (monsterStats.HasMiniCrown == false || monsterStats.HasGoldCrown == false))
-                    Console.WriteLine($"{index:d2} - {monsterStats.Name,-22}{monsterStats.Slayed + monsterStats.Captured,-5}{monsterStats.Captured,-10}{MiniCrown(monsterStats),-3}{LargeCrown(monsterStats),-10}{monsterStats.ResearchLevel}");
+                    if (monsterStats.HasCrowns)
+                    {
+                        if (monsterStats.HasMiniCrown)
+                            Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        else
+                            Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    Console.Write($"{MiniCrown(monsterStats),-3}");
+
+                    if (monsterStats.HasCrowns)
+                    {
+                        if (monsterStats.HasGoldCrown)
+                            Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        else if (monsterStats.HasSilverCrown)
+                            Console.ForegroundColor = ConsoleColor.White;
+                        else
+                            Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    Console.Write($"{LargeCrown(monsterStats),-10}");
+
+                    Console.ResetColor();
+
+                    Console.WriteLine($"{monsterStats.ResearchLevel}");
+
                     index++;
                 }
+
                 PrintSeparator('-');
             }
 
@@ -114,9 +137,9 @@ namespace MHWSaveUtils.Tester
                     return " ";
 
                 if (monsterStats.HasMiniCrown)
-                    return "_";
+                    return "G";
 
-                return "x";
+                return "X";
             }
 
             string LargeCrown(MonsterStatsInfo monsterStats)
@@ -125,9 +148,11 @@ namespace MHWSaveUtils.Tester
                     return " ";
 
                 if (monsterStats.HasGoldCrown)
-                    return "_";
+                    return "G";
+                else if (monsterStats.HasSilverCrown)
+                    return "S";
 
-                return "x";
+                return "X";
             }
         }
 
@@ -173,10 +198,14 @@ namespace MHWSaveUtils.Tester
                     PrintWeaponUsage(weaponUsageInfo.LowRank);
                     Console.WriteLine("High rank:");
                     PrintWeaponUsage(weaponUsageInfo.HighRank);
+                    Console.WriteLine("Master rank:");
+                    PrintWeaponUsage(weaponUsageInfo.MasterRank);
                     Console.WriteLine("Investigations:");
                     PrintWeaponUsage(weaponUsageInfo.Investigations);
+                    Console.WriteLine("Guiding Lands:");
+                    PrintWeaponUsage(weaponUsageInfo.GuidingLands);
                     Console.WriteLine("Total:");
-                    PrintWeaponUsage(weaponUsageInfo.LowRank + weaponUsageInfo.HighRank + weaponUsageInfo.Investigations);
+                    PrintWeaponUsage(weaponUsageInfo.LowRank + weaponUsageInfo.HighRank + weaponUsageInfo.MasterRank + weaponUsageInfo.Investigations + weaponUsageInfo.GuidingLands);
                     PrintSeparator('-');
                 }
             }
