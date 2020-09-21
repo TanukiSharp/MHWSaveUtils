@@ -12,13 +12,15 @@ namespace MHWSaveUtils.Tester
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             new Program().Run().Wait();
         }
 
         private async Task Run()
         {
+            await MasterData.Load();
+
             foreach (SaveDataInfo saveDataInfo in FileSystemUtils.EnumerateSaveDataInfo())
             {
                 Console.WriteLine($"UserId: {saveDataInfo.UserId}");
@@ -70,8 +72,8 @@ namespace MHWSaveUtils.Tester
             ReadMonsterStats(ms);
             //PrintSeparator('=');
             //ReadEquipment(ms);
-            //PrintSeparator('=');
-            //ReadDecorations(ms);
+            PrintSeparator('=');
+            ReadDecorations(ms);
             PrintSeparator('=');
             ReadWeaponUsage(ms);
         }
@@ -181,7 +183,7 @@ namespace MHWSaveUtils.Tester
                 PrintBaseSaveData(decorationInfo);
                 Console.WriteLine();
                 Console.WriteLine($"{decorationInfo.Decorations.Count} decorations");
-                foreach (KeyValuePair<uint, uint> decoKeyValue in decorationInfo.Decorations)
+                foreach (KeyValuePair<uint, uint> decoKeyValue in decorationInfo.Decorations.OrderBy(kv => MasterData.FindJewelInfoByItemId(kv.Key).Name))
                     Console.WriteLine($"   {MasterData.FindJewelInfoByItemId(decoKeyValue.Key).Name}: x{decoKeyValue.Value}");
                 PrintSeparator('-');
             }

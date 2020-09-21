@@ -20,8 +20,7 @@ namespace MHWSaveUtils
 
             Skip(
                 4 + // SAVEFILE.data.section.unknown
-                8 + // SAVEFILE.data.section.sectionSize
-                4   // SAVEFILE.data.section.sectionData[2].unknown (sectionData_3.unknown)
+                8 // sectionSize
             );
 
             for (int i = 0; i < 3; i++)
@@ -32,31 +31,62 @@ namespace MHWSaveUtils
             }
         }
 
+        private const long GuildCardSize = 171 + // begining of GUILDCARD struct
+            Constants.HunterAppearanceStructureSize + // hunterAppearance (H_APPEARANCE)
+            212 + // unknown
+            64 + // Palico name
+            4 + // Palico rank
+            194 + // unknown
+            Constants.WeaponUsageStructureSize * 5 +
+            1 + // poseID
+            1 + // expressionID
+            1 + // backgroundID
+            1 + // stickerID
+            256 + // greeting
+            256 + // title
+            5454 + // lot of things
+            MonsterStatsReader.MaxMonsterCount * 2 + // captured
+            MonsterStatsReader.MaxMonsterCount * 2 + // slayed
+            MonsterStatsReader.MaxMonsterCount * 2 + // largest
+            MonsterStatsReader.MaxMonsterCount * 2 + // smallest
+            MonsterStatsReader.MaxMonsterCount * 1 + // researchLevel
+            0;
+
         private DecorationsSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
+            Skip(4); // unknown
+
             SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
-            // Skip until beginning of struct itemBox
             Skip(
-                4 + // unknown
                 Constants.HunterAppearanceStructureSize + // H_APPEARANCE
-                Constants.PalicoAppearanceStructureSize + // P_APPEARANCE
-                Constants.GuildCardStructureSize + // hunterGC
-                Constants.GuildCardStructureSize * 100 + // sharedGC
-                0x019e36 + // unknown
-                Constants.ItemLoadoutsStructureSize + // itemLoadouts
-                8 + // unknown
-                Constants.ItemPouchStructureSize // itemPouch
+                382 + // unknown
+                Constants.PalicoAppearanceStructureSize // P_APPEARANCE
+            );
+
+            Skip(GuildCardSize * 101); // hunter's one + 100 shared
+
+            Skip(209447); // unkn1
+
+            Skip(142200); // item loadouts
+
+            // Skip item pouch
+            Skip(
+                24 * 8 + // items
+                16 * 8 + // ammo
+                256 + // unknown
+                7 * 8 // special
             );
 
             Skip(
-                8 * 200 + // struct items
-                8 * 200 + // struct ammo
-                8 * 800   // struct matrials
+                200 * 8 + // items
+                200 * 8 + // ammo
+                1250 * 8 // materials
             );
 
             var decorations = new Dictionary<uint, uint>();
-            for (int i = 0; i < 200; i++)
+
+            for (int i = 0; i < 500; i++)
             {
                 uint itemId = reader.ReadUInt32();
                 uint itemQuantity = reader.ReadUInt32();
@@ -66,19 +96,11 @@ namespace MHWSaveUtils
             }
 
             // Read 1000 equipment slots
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 2500; i++)
                 ReadEquipmentSlot(decorations);
 
             // Skip until the end of the struct saveSlot
-            Skip(
-                0x2449C + // unknown
-                0x2a * 250 + // investigations
-                0x0FB9 + // unknown
-                Constants.EquipLoadoutsStructureSize + // equipLoadout
-                0x6521 + // unknown
-                Constants.DlcTypeSize * 256 + // DLCClaimed
-                0x2A5D // unknown
-            );
+            Skip(0xa2618);
 
             if (baseSaveSlotInfo.Playtime == 0)
                 return null;
@@ -126,15 +148,7 @@ namespace MHWSaveUtils
             }
 
             // Skip the remaining of the whole structure
-            Skip(
-                4 + // EquipmentType argument 2 (BowGunMod1, KinsectType)
-                4 + // BowGunMod2
-                4 + // BowGunMod3
-                4 + // Augment1
-                4 + // Augment2
-                4 + // Augment3
-                8   // Unknown
-            );
+            Skip(90);
         }
     }
 

@@ -118,7 +118,7 @@ namespace MHWSaveUtils
             return new MonsterStatsSaveSlotInfo(baseSaveSlotInfo, monsters);
         }
 
-        private const int MaxMonsterCount = 96;
+        public const int MaxMonsterCount = 96;
 
         private enum MonsterSize
         {

@@ -21,8 +21,7 @@ namespace MHWSaveUtils
 
             Skip(
                 4 + // SAVEFILE.data.section.unknown
-                8 + // SAVEFILE.data.section.sectionSize
-                4   // SAVEFILE.data.section.sectionData[2].unknown (sectionData_3.unknown)
+                8 // sectionSize
             );
 
             for (int i = 0; i < 3; i++)
@@ -35,6 +34,8 @@ namespace MHWSaveUtils
 
         private EquipmentSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
+            Skip(4); // unknown
+
             SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
             // Skip until beginning of struct equipmentSlot
