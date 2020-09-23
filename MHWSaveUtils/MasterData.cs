@@ -9,6 +9,47 @@ using Newtonsoft.Json.Linq;
 
 namespace MHWSaveUtils
 {
+    public struct EquipmentInfo
+    {
+        public string Name { get; }
+        public uint Id { get; }
+
+        public EquipmentInfo(string name, uint id)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException($"Argument '{nameof(name)}' must not be empty.");
+            if (id == uint.MaxValue)
+                throw new ArgumentException($"Argument '{nameof(id)}' cannot be 0x{uint.MaxValue:X}");
+
+            Name = name;
+            Id = id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is EquipmentInfo equipmentInfo)
+                return equipmentInfo.Name == Name && equipmentInfo.Id == Id;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return $"{Name}|{Id}".GetHashCode();
+        }
+
+        public static bool operator ==(EquipmentInfo left, EquipmentInfo right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(EquipmentInfo left, EquipmentInfo right)
+        {
+            return !(left == right);
+        }
+    }
+
     public struct JewelInfo
     {
         public string Name { get; }
@@ -74,11 +115,81 @@ namespace MHWSaveUtils
             Jewels = new ReadOnlyCollection<JewelInfo>(jewels);
         }
 
+        private static async Task<ReadOnlyDictionary<uint, EquipmentInfo>> LoadEquipmentsFile(HttpClient httpClient, string type, string idPropertyName)
+        {
+            string url = $"https://raw.githubusercontent.com/TanukiSharp/MHWMasterDataUtils/master/MHWMasterDataUtils.Exporter/data/{type}.json";
+
+            string equipmentsJsonString = await httpClient.GetStringAsync(url);
+
+            var equipmentsArray = (JArray)JsonConvert.DeserializeObject(equipmentsJsonString);
+
+            var equipments = new Dictionary<uint, EquipmentInfo>();
+
+            foreach (JObject equipmentObject in equipmentsArray)
+            {
+                string name = equipmentObject["name"]["eng"].Value<string>();
+                uint id = equipmentObject[idPropertyName].Value<uint>();
+
+                equipments.Add(id, new EquipmentInfo(name, id));
+            }
+
+            return new ReadOnlyDictionary<uint, EquipmentInfo>(equipments);
+        }
+
+        private static async Task LoadArmorPieces(HttpClient httpClient)
+        {
+            const string isPropertyName = "setGroup";
+
+            ReadOnlyDictionary<uint, EquipmentInfo>[] result = await Task.WhenAll(
+                LoadEquipmentsFile(httpClient, "heads", isPropertyName),
+                LoadEquipmentsFile(httpClient, "chests", isPropertyName),
+                LoadEquipmentsFile(httpClient, "arms", isPropertyName),
+                LoadEquipmentsFile(httpClient, "waists", isPropertyName),
+                LoadEquipmentsFile(httpClient, "legs", isPropertyName)
+            );
+
+            ArmorPieces = new ReadOnlyCollection<ReadOnlyDictionary<uint, EquipmentInfo>>(result);
+        }
+
+        private static async Task LoadWeapons(HttpClient httpClient)
+        {
+            const string idPropertyName = "sortOrder";
+
+            ReadOnlyDictionary<uint, EquipmentInfo>[] result = await Task.WhenAll(
+                LoadEquipmentsFile(httpClient, "great-swords", idPropertyName),
+                LoadEquipmentsFile(httpClient, "sword-and-shields", idPropertyName),
+                LoadEquipmentsFile(httpClient, "dual-blades", idPropertyName),
+                LoadEquipmentsFile(httpClient, "long-swords", idPropertyName),
+                LoadEquipmentsFile(httpClient, "hammers", idPropertyName),
+                LoadEquipmentsFile(httpClient, "hunting-horns", idPropertyName),
+                LoadEquipmentsFile(httpClient, "lances", idPropertyName),
+                LoadEquipmentsFile(httpClient, "gunlances", idPropertyName),
+                LoadEquipmentsFile(httpClient, "switch-axes", idPropertyName),
+                LoadEquipmentsFile(httpClient, "charge-blades", idPropertyName),
+                LoadEquipmentsFile(httpClient, "insect-glaives", idPropertyName),
+                LoadEquipmentsFile(httpClient, "bows", idPropertyName),
+                LoadEquipmentsFile(httpClient, "heavy-bowguns", idPropertyName),
+                LoadEquipmentsFile(httpClient, "light-bowguns", idPropertyName)
+            );
+
+            Weapons = new ReadOnlyCollection<ReadOnlyDictionary<uint, EquipmentInfo>>(result);
+        }
+
+        private static async Task LoadCharms(HttpClient httpClient)
+        {
+            Charms = await LoadEquipmentsFile(httpClient, "charms", "setGroup");
+        }
+
         public static async Task Load()
         {
             using (var httpClient = new HttpClient())
             {
-                await LoadJewels(httpClient);
+                await Task.WhenAll(
+                    LoadJewels(httpClient),
+                    LoadArmorPieces(httpClient),
+                    LoadCharms(httpClient),
+                    LoadWeapons(httpClient)
+                );
             }
         }
 
@@ -115,6 +226,9 @@ namespace MHWSaveUtils
             throw new ArgumentException($"Could not find {nameof(itemId)} {itemId} in {nameof(Jewels)} collection.");
         }
 
-        public static IReadOnlyCollection<JewelInfo> Jewels { get; private set; }
+        public static ReadOnlyCollection<ReadOnlyDictionary<uint, EquipmentInfo>> ArmorPieces { get; private set; }
+        public static ReadOnlyCollection<ReadOnlyDictionary<uint, EquipmentInfo>> Weapons { get; private set; }
+        public static ReadOnlyDictionary<uint, EquipmentInfo> Charms { get; private set; }
+        public static ReadOnlyCollection<JewelInfo> Jewels { get; private set; }
     }
 }

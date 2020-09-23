@@ -31,27 +31,6 @@ namespace MHWSaveUtils
             }
         }
 
-        private const long GuildCardSize = 171 + // begining of GUILDCARD struct
-            Constants.HunterAppearanceStructureSize + // hunterAppearance (H_APPEARANCE)
-            212 + // unknown
-            64 + // Palico name
-            4 + // Palico rank
-            194 + // unknown
-            Constants.WeaponUsageStructureSize * 5 +
-            1 + // poseID
-            1 + // expressionID
-            1 + // backgroundID
-            1 + // stickerID
-            256 + // greeting
-            256 + // title
-            5454 + // lot of things
-            MonsterStatsReader.MaxMonsterCount * 2 + // captured
-            MonsterStatsReader.MaxMonsterCount * 2 + // slayed
-            MonsterStatsReader.MaxMonsterCount * 2 + // largest
-            MonsterStatsReader.MaxMonsterCount * 2 + // smallest
-            MonsterStatsReader.MaxMonsterCount * 1 + // researchLevel
-            0;
-
         private DecorationsSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
             Skip(4); // unknown
@@ -64,7 +43,7 @@ namespace MHWSaveUtils
                 Constants.PalicoAppearanceStructureSize // P_APPEARANCE
             );
 
-            Skip(GuildCardSize * 101); // hunter's one + 100 shared
+            Skip(Constants.GuildCardStructureSize * 101); // hunter's one + 100 shared
 
             Skip(209447); // unkn1
 

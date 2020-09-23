@@ -38,48 +38,50 @@ namespace MHWSaveUtils
 
             SaveSlotInfoBase baseSaveSlotInfo = ReadUntilPlaytimeIncluded(slotNumber);
 
-            // Skip until beginning of struct equipmentSlot
             Skip(
-                4 + // unknown
                 Constants.HunterAppearanceStructureSize + // H_APPEARANCE
-                Constants.PalicoAppearanceStructureSize + // P_APPEARANCE
-                Constants.GuildCardStructureSize + // hunterGC
-                Constants.GuildCardStructureSize * 100 + // sharedGC
-                0x019e36 + // unknown
-                Constants.ItemLoadoutsStructureSize + // itemLoadouts
-                8 + // unknown
-                Constants.ItemPouchStructureSize + // itemPouch
-                8 * 200 + // struct items
-                8 * 200 + // struct ammo
-                8 * 800 + // struct matrials
-                8 * 200   // struct decorations
+                382 + // unknown
+                Constants.PalicoAppearanceStructureSize // P_APPEARANCE
             );
 
-            var equipment = new List<Equipment>();
+            Skip(Constants.GuildCardStructureSize * 101); // hunter's one + 100 shared
 
-            // Read 1000 equipment slots
-            for (int i = 0; i < 1000; i++)
+            Skip(209447); // unkn1
+
+            Skip(142200); // item loadouts
+
+            // Skip item pouch
+            Skip(
+                24 * 8 + // items
+                16 * 8 + // ammo
+                256 + // unknown
+                7 * 8 // special
+            );
+
+            Skip(
+                200 * 8 + // items
+                200 * 8 + // ammo
+                1250 * 8 + // materials
+                500 * 8 // decorations
+            );
+
+            var equipments = new List<Equipment>();
+
+            // Read 2500 equipment slots
+            for (int i = 0; i < 2500; i++)
             {
                 var eqp = Equipment.Read(reader);
                 if (eqp != null)
-                    equipment.Add(eqp);
+                    equipments.Add(eqp);
             }
 
             // Skip until the end of the struct saveSlot
-            Skip(
-                0x2449C + // unknown
-                0x2a * 250 + // investigations
-                0x0FB9 + // unknown
-                Constants.EquipLoadoutsStructureSize + // equipLoadout
-                0x6521 + // unknown
-                Constants.DlcTypeSize * 256 + // DLCClaimed
-                0x2A5D // unknown
-            );
+            Skip(0xa2618);
 
             if (baseSaveSlotInfo.Playtime == 0)
                 return null;
 
-            return new EquipmentSaveSlotInfo(equipment.ToArray(), baseSaveSlotInfo);
+            return new EquipmentSaveSlotInfo(equipments.ToArray(), baseSaveSlotInfo);
         }
     }
 
@@ -92,8 +94,6 @@ namespace MHWSaveUtils
         public uint CharmId { get; private set; }
         public uint KinsectId { get; private set; }
         public uint ClassId { get; private set; }
-        public uint UpgradeLevel { get; private set; }
-        public uint UpgradePoints { get; private set; }
         public Decoration[] DecorationSlots { get; private set; }
         public BowGunMod[] BowgunMods { get; private set; }
         public KinsectType KinsectType { get; private set; }
@@ -113,7 +113,7 @@ namespace MHWSaveUtils
 
             if (result.Type == EquipmentType.None)
             {
-                reader.BaseStream.Seek(15 * 4, SeekOrigin.Current);
+                reader.BaseStream.Seek(118, SeekOrigin.Current);
                 return null;
             }
 
@@ -138,8 +138,8 @@ namespace MHWSaveUtils
             }
 
             result.ClassId = reader.ReadUInt32();
-            result.UpgradeLevel = reader.ReadUInt32();
-            result.UpgradePoints = reader.ReadUInt32();
+
+            reader.BaseStream.Seek(8, SeekOrigin.Current);
 
             result.DecorationSlots = new[]
             {
@@ -172,26 +172,27 @@ namespace MHWSaveUtils
                 (AugmentationType)reader.ReadUInt32(),
             };
 
-            // skip 2 Unknown
-            reader.BaseStream.Seek(2 * 4, SeekOrigin.Current);
+            // skip many unknowns
+            reader.BaseStream.Seek(66, SeekOrigin.Current);
 
             return result;
         }
 
         public override string ToString()
         {
-            var sb = new StringBuilder($"[{SortIndex}] {Type} {ClassId}");
-
             if (Type == EquipmentType.Armor)
-                sb.Append($" ({ArmorPieceType})");
-            else if (Type == EquipmentType.Weapon)
-                sb.Append($" ({WeaponType})");
-            else if (Type == EquipmentType.Charm)
-                sb.Append($" (Id: {CharmId})");
-            else if (Type == EquipmentType.Kinsect)
-                sb.Append($" (Id: {KinsectId}");
+                return $"[{ArmorPieceType}] {MasterData.ArmorPieces[(int)ArmorPieceType][ClassId].Name}";
 
-            return sb.ToString();
+            if (Type == EquipmentType.Weapon)
+                return $"[{WeaponType}] {MasterData.Weapons[(int)WeaponType][ClassId].Name}";
+
+            if (Type == EquipmentType.Charm)
+                return $"[Charm] {MasterData.Charms[ClassId].Name}";
+
+            if (Type == EquipmentType.Kinsect)
+                return ($"[Kinsect] [{SortIndex}] {Type} {ClassId} (Id: {KinsectId})");
+
+            return $"??? (SortIndex: {SortIndex}, Type: {Type}, ArmorPieceType: {ArmorPieceType}, WeaponType: {WeaponType}, CharmId: {CharmId}, KinsectId: {KinsectId}, ClassId: {ClassId}, KinsectType: {KinsectType})";
         }
     }
 

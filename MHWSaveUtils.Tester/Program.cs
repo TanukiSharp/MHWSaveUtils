@@ -12,9 +12,9 @@ namespace MHWSaveUtils.Tester
 {
     class Program
     {
-        static void Main()
+        static async Task Main()
         {
-            new Program().Run().Wait();
+            await new Program().Run();
         }
 
         private async Task Run()
@@ -70,8 +70,8 @@ namespace MHWSaveUtils.Tester
 
             PrintSeparator('=');
             ReadMonsterStats(ms);
-            //PrintSeparator('=');
-            //ReadEquipment(ms);
+            PrintSeparator('=');
+            ReadEquipment(ms);
             PrintSeparator('=');
             ReadDecorations(ms);
             PrintSeparator('=');
