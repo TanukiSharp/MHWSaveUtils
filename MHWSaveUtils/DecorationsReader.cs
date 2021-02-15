@@ -31,6 +31,16 @@ namespace MHWSaveUtils
             }
         }
 
+        private void IncrementDecorationByEquipmentId(uint equipmentId, Dictionary<uint, uint> decorations)
+        {
+            JewelInfo jewel = MasterData.FindJewelInfoByEquippedItemId(equipmentId);
+
+            if (decorations.TryGetValue(jewel.ItemId, out uint quantity))
+                decorations[jewel.ItemId] = quantity + 1;
+            else
+                decorations.Add(jewel.ItemId, 1);
+        }
+
         private DecorationsSaveSlotInfo ReadSaveSlot(int slotNumber)
         {
             Skip(4); // unknown
@@ -78,8 +88,40 @@ namespace MHWSaveUtils
             for (int i = 0; i < 2500; i++)
                 ReadEquipmentSlot(decorations);
 
+            // Skip until specialized tools
+            Skip(0x4AD29);
+
+            for (int i = 0; i < 128; i++) // 128
+            {
+                Skip(4); // id
+                uint isAvailable = reader.ReadUInt32();
+
+                if (isAvailable == 0)
+                {
+                    Skip(118);
+                    continue;
+                }
+
+                Skip(4); // Unused
+
+                uint slot1EquipId = reader.ReadUInt32();
+                uint slot2EquipId = reader.ReadUInt32();
+                uint slot3EquipId = reader.ReadUInt32();
+
+                if (slot1EquipId != uint.MaxValue)
+                    IncrementDecorationByEquipmentId(slot1EquipId, decorations);
+
+                if (slot2EquipId != uint.MaxValue)
+                    IncrementDecorationByEquipmentId(slot2EquipId, decorations);
+
+                if (slot3EquipId != uint.MaxValue)
+                    IncrementDecorationByEquipmentId(slot3EquipId, decorations);
+
+                Skip(102); // Unknown
+            }
+
             // Skip until the end of the struct saveSlot
-            Skip(0xa2618);
+            Skip(0x539EF);
 
             if (baseSaveSlotInfo.Playtime == 0)
                 return null;
